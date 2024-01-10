@@ -3,6 +3,7 @@ using kwiz_api_game.Models.DTO;
 using kwiz_api_game.Models.Entities;
 using kwiz_api_game.Models.Extensions;
 using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver;
 
 namespace kwiz_api_game.Services;
 
@@ -10,7 +11,7 @@ public interface IGameService
 {
     Task<GameResponse> CreateGameAsync();
     Task<GameResponse> GetGameAsync(string id);
-    Task<GameResponse> TryAnswerAsync(string id, QuestionRequest request);
+    Task<QuestionAnswerResponse> TryAnswerAsync(string id, QuestionRequest request);
 }
 public class GameService : IGameService
 {
@@ -18,10 +19,11 @@ public class GameService : IGameService
     private readonly DataContext _context;
     private readonly IQuestionService _questionService;
 
-    public GameService(ILogger<GameService> logger, DataContext context, IQuestionService questionService)
+    public GameService(ILogger<GameService> logger, IQuestionService questionService,
+        IConfiguration configuration)
     {
         _logger = logger;
-        _context = context;
+        _context = DataContext.Create(new MongoClient(configuration["MongoDB"]).GetDatabase("kwiz_games"));
         _questionService = questionService;
     }
 
@@ -57,7 +59,7 @@ public class GameService : IGameService
         return game.AsResponse(questionDtos);
     }
 
-    public async Task<GameResponse> TryAnswerAsync(string id, QuestionRequest request)
+    public async Task<QuestionAnswerResponse> TryAnswerAsync(string id, QuestionRequest request)
     {
         var game = await GetGameEntityAsync(id);
         var question = game.Questions.FirstOrDefault(q => q.Id == request.Id);
@@ -71,7 +73,7 @@ public class GameService : IGameService
         question.CorrectlyAnswered = isResponseCorrect;
         await _context.SaveChangesAsync();
 
-        return await GetGameAsync(id);
+        return question.AsResponse();
     }
 
     // helpers methods

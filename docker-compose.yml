@@ -3,8 +3,7 @@ services:
   api:
     build: .
     ports:
-      - "80:80"
-      - "443:443"
+      - "5133:5133"
     depends_on:
       - mongo
 
@@ -12,6 +11,9 @@ services:
     image: mongo:latest
     ports:
       - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=kwiz_password
     volumes:
       - mongo-data:/data/db
 

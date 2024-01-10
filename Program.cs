@@ -1,8 +1,24 @@
 using GrandeNoctuleAPI_Main.Helpers.Exceptions;
 using kwiz_api_game.Services;
+using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// ssl security
+builder.WebHost.UseUrls("http://*:5133");
+
+// cors
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(corsPolicyBuilder =>
+    {
+        Console.Out.WriteLine("Adding cors policy");
+        corsPolicyBuilder.WithOrigins("*")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 
 // Add services to the container.
 
@@ -25,9 +41,6 @@ builder.Services.AddHttpClient<IQuestionService, QuestionService>(client =>
 });
 
 var configuration = builder.Configuration;
-// Register the MongoDB DbContext
-builder.Services.AddScoped<DataContext>(provider => 
-    DataContext.Create(new MongoClient(configuration["MongoDB"]).GetDatabase("kwiz_games")));
 
 var app = builder.Build();
 
@@ -38,6 +51,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

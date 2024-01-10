@@ -19,4 +19,8 @@ public static class QuestionsExtensions
             questionDto.QuestionText, 
             questionDto.Answers,
             correctlyAnswered);
+    
+    public static QuestionAnswerResponse AsResponse(this Question question)
+        => new QuestionAnswerResponse(question.Id, question.CorrectlyAnswered);
+    
 }

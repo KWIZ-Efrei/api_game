@@ -24,7 +24,7 @@ public class GamesController : ControllerBase
         => await _gameService.CreateGameAsync();
     
     [HttpPost("{id}/answer")]
-    public async Task<GameResponse> TryAnswerAsync(string id, QuestionRequest request)
+    public async Task<QuestionAnswerResponse> TryAnswerAsync(string id, QuestionRequest request)
         => await _gameService.TryAnswerAsync(id, request);
     
     

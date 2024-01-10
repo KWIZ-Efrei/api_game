@@ -12,15 +12,16 @@ using MongoDB.EntityFrameworkCore.Extensions;
 public class DataContext : DbContext
 {
     public DbSet<Game> Games { get; init; }
-    
+
+    private static readonly DbContextOptionsBuilder<DataContext> DbBuilder
+        = new();
     public static DataContext Create(IMongoDatabase database) =>
-        new(new DbContextOptionsBuilder<DataContext>()
+        new(DbBuilder
             .UseMongoDB(database.Client, database.DatabaseNamespace.DatabaseName)
             .Options);
-    public DataContext(DbContextOptions options)
-        : base(options)
-    {
-    }
+    
+    public DataContext(DbContextOptions options) : base(options)
+    { }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

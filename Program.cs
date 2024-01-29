@@ -6,7 +6,7 @@ using MongoDB.Driver;
 var builder = WebApplication.CreateBuilder(args);
 
 // ssl security
-builder.WebHost.UseUrls("http://*:5133");
+builder.WebHost.UseUrls("http://kwiz-game-api.test");
 
 // cors
 builder.Services.AddCors(options =>
@@ -37,7 +37,7 @@ builder.Services.AddScoped<IQuestionService, QuestionService>();
 // HttpClients
 builder.Services.AddHttpClient<IQuestionService, QuestionService>(client =>
 {
-    client.BaseAddress = new Uri("http://localhost:8080/");
+    client.BaseAddress = new Uri("http://kwiz-api-question:8080/");
 });
 
 var configuration = builder.Configuration;

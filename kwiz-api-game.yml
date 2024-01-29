@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kwiz-api-game
+spec:
+  selector:
+    matchLabels:
+      app: kwiz-api-game
+  template:
+    metadata:
+      labels:
+        app: kwiz-api-game
+    spec:
+      containers:
+        - name: kwiz-api-game
+          image: anthonypab/kwiz_api_game:v1.2-release
+          ports:
+            - containerPort: 5133
+          env:
+            - name: MONGO_HOST
+              value: mongodb
+            - name: MONGO_PORT
+              value: "27017"
+            - name: MONGO_DATABASE
+              value: kwiz
+            - name: MONGO_USERNAME
+              value: admin
+            - name: MONGO_PASSWORD
+              value: kwiz_password
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: kwiz-api-game
+spec:
+  selector:
+    app: kwiz-api-game
+  ports:
+    - name: http
+      port: 5133
+      targetPort: 5133
+      
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kwiz-api-game-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  rules:
+    - host: kwiz-game-api.test
+      http:
+        paths:
+          - path: /(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: kwiz-api-game
+                port:
+                  number: 5133
